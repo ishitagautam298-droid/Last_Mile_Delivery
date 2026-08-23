@@ -1,0 +1,37 @@
+{
+  "name": "last-mile-delivery-tracker-backend",
+  "version": "1.0.0",
+  "description": "Enterprise Last-Mile Delivery Platform with Dynamic Rate Engine & Auto-Assignment",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node src/scripts/seed.js",
+    "test": "jest --runInBand --detectOpenHandles"
+  },
+  "keywords": [
+    "delivery",
+    "last-mile",
+    "logistics",
+    "rate-engine",
+    "tracking"
+  ],
+  "author": "Ishita Gautam",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.1",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.13",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.2",
+    "supertest": "^7.0.0"
+  }
+}

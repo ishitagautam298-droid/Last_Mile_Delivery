@@ -1,0 +1,36 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+node_modules/
+*/node_modules/
+
+# Production builds
+dist/
+*/dist/
+build/
+*/build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+!*.env.example
+
+# macOS system files
+.DS_Store
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sw?
+
+# Temporary files
+*.tmp
+*.temp
