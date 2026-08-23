@@ -46,18 +46,19 @@ Logistics margins depend on accurate freight rating. Rather than hardcoding form
    $$\text{Extra Weight} = \max(0, \text{Chargeable Weight} - \text{Base Weight Limit})$$
    $$\text{Extra Weight Charge} = \lceil \text{Extra Weight} \rceil \times \text{Incremental Price Per Kg}$$
 4. **COD Surcharges & Taxes**:
-   $$\text{COD Fee} = \begin{cases} 
-   \max(\text{Min COD}, \text{Fixed COD Value}) & \text{if Fixed} \\
-   \max(\text{Min COD}, (\text{Base} + \text{Extra}) \times \frac{\text{COD \%}}{100}) & \text{if Percentage}
-   \end{cases}$$
-   $$\text{Total Payable} = (\text{Base} + \text{Extra} + \text{COD}) \times \left(1 + \frac{\text{GST \%}}{100}\right)$$
+   - **Fixed COD**:
+     $$\text{COD Fee} = \max(\text{Min COD Fee}, \text{Fixed COD Value})$$
+   - **Percentage COD**:
+     $$\text{COD Fee} = \max\left(\text{Min COD Fee}, (\text{Base Price} + \text{Extra Weight Charge}) \times \frac{\text{COD Percentage}}{100}\right)$$
+   - **Total Payable**:
+     $$\text{Total Payable} = (\text{Base Price} + \text{Extra Weight Charge} + \text{COD Fee}) \times \left(1 + \frac{\text{GST Percentage}}{100}\right)$$
 
 Every quote is generated with sub-cent precision and rendered to the customer before payment commitment.
 
 ---
 
 ## 3. Zone & Area Resolution Approach
-Cities are partitioned into operational polygons designated by `Zone` entities (e.g., `CM-01`, `SZ-01`, `EZ-01`, `NZ-01`, `WZ-01`).
+Cities are partitioned into operational polygons designated by `Zone` entities (e.g., `CB-01`, `SB-01`, `EB-01`, `NB-01`, `WB-01`).
 - **Pincode & Locality Indexing**: The `AreaMapping` collection indexes standard 6-digit postal codes and area names to their corresponding zone IDs.
 - **Routing Scope Classification**:
   - If $\text{Pickup Zone ID} == \text{Drop Zone ID} \implies \textbf{Intra-Zone}$
