@@ -32,7 +32,7 @@ router.post('/register', async (req, res) => {
         status: agentDetails?.status || 'available',
         vehicleType: agentDetails?.vehicleType || 'bike',
         maxActiveDeliveries: agentDetails?.maxActiveDeliveries || 5,
-        currentLocation: agentDetails?.currentLocation || { lat: 12.9716, lng: 77.5946, address: 'Bangalore Central' }
+        currentLocation: agentDetails?.currentLocation || { lat: 23.2332, lng: 77.4344, address: 'Bhopal Central Hub' }
       } : undefined
     });
 
@@ -119,7 +119,7 @@ router.put('/agent-status', protect, async (req, res) => {
       user.agentDetails.currentLocation = {
         lat: parseFloat(lat),
         lng: parseFloat(lng),
-        address: address || user.agentDetails.currentLocation?.address || 'Bangalore',
+        address: address || user.agentDetails.currentLocation?.address || 'Bhopal',
         updatedAt: new Date()
       };
     }

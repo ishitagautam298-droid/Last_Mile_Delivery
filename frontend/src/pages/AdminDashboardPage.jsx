@@ -55,8 +55,8 @@ const AdminDashboardPage = () => {
   // Modal States
   const [manualAssignModal, setManualAssignModal] = useState({ open: false, order: null, selectedAgentId: '' });
   const [statusOverrideModal, setStatusOverrideModal] = useState({ open: false, order: null, newStatus: '', reason: '', notes: '' });
-  const [zoneModal, setZoneModal] = useState({ open: false, mode: 'create', data: { name: '', code: '', city: 'Bangalore', description: '', lat: 12.9716, lng: 77.5946 } });
-  const [areaModal, setAreaModal] = useState({ open: false, data: { pincode: '', areaName: '', city: 'Bangalore', state: 'Karnataka', zoneId: '' } });
+  const [zoneModal, setZoneModal] = useState({ open: false, mode: 'create', data: { name: '', code: '', city: 'Bhopal', description: '', lat: 23.2332, lng: 77.4344 } });
+  const [areaModal, setAreaModal] = useState({ open: false, data: { pincode: '', areaName: '', city: 'Bhopal', state: 'Madhya Pradesh', zoneId: '' } });
   const [rateCardModal, setRateCardModal] = useState({ open: false, mode: 'create', data: { name: '', orderType: 'B2C', scope: 'intra_zone', baseWeightLimitKg: 0.5, basePrice: 45, incrementalPricePerKg: 20, codSurchargeType: 'fixed', codSurchargeValue: 25, minCodFee: 20, taxPercentage: 18 } });
 
   const fetchDashboardData = async () => {
@@ -178,7 +178,7 @@ const AdminDashboardPage = () => {
     e.preventDefault();
     try {
       await zoneAPI.createArea(areaModal.data);
-      setAreaModal({ open: false, data: { city: 'Bangalore', state: 'Karnataka' } });
+      setAreaModal({ open: false, data: { city: 'Bhopal', state: 'Madhya Pradesh' } });
       fetchDashboardData();
     } catch (err) {
       alert(err.response?.data?.message || 'Error adding area mapping');
@@ -606,7 +606,7 @@ const AdminDashboardPage = () => {
                 <p className="text-xs text-slate-500">Serviceable geographic zones for intra vs inter routing.</p>
               </div>
               <button
-                onClick={() => setZoneModal({ open: true, mode: 'create', data: { name: '', code: '', city: 'Bangalore', description: '', lat: 12.9716, lng: 77.5946 } })}
+                onClick={() => setZoneModal({ open: true, mode: 'create', data: { name: '', code: '', city: 'Bhopal', description: '', lat: 23.2332, lng: 77.4344 } })}
                 className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5"
               >
                 <PlusCircle className="w-4 h-4" /> Add Zone
@@ -657,7 +657,7 @@ const AdminDashboardPage = () => {
                 <p className="text-xs text-slate-500">Maps user pickup/drop pincodes and localities to assigned operational zones.</p>
               </div>
               <button
-                onClick={() => setAreaModal({ open: true, data: { pincode: '', areaName: '', city: 'Bangalore', state: 'Karnataka', zoneId: zones[0]?._id } })}
+                onClick={() => setAreaModal({ open: true, data: { pincode: '', areaName: '', city: 'Bhopal', state: 'Madhya Pradesh', zoneId: zones[0]?._id } })}
                 className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5"
               >
                 <PlusCircle className="w-4 h-4" /> Map New Pincode/Area
@@ -1025,7 +1025,7 @@ const AdminDashboardPage = () => {
                   <input
                     type="text"
                     required
-                    value={zoneModal.data.city || 'Bangalore'}
+                    value={zoneModal.data.city || 'Bhopal'}
                     onChange={(e) => setZoneModal(prev => ({ ...prev, data: { ...prev.data, city: e.target.value } }))}
                     className="w-full p-2.5 rounded-xl border border-slate-200"
                   />

@@ -53,7 +53,7 @@ class RateEngineService {
       // Fallback: Check if there is a default city zone
       const fallbackZone = await Zone.findOne({
         $or: [
-          { city: new RegExp(city || 'Bangalore', 'i') },
+          { city: new RegExp(city || 'Bhopal', 'i') },
           { isActive: true }
         ]
       });

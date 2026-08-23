@@ -44,7 +44,7 @@ const TrackingMap = ({ pickupCoords, dropCoords, liveCoords, pickupAddress, drop
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
-      const initialCenter = liveCoords?.lat ? [liveCoords.lat, liveCoords.lng] : [12.9716, 77.5946];
+      const initialCenter = liveCoords?.lat ? [liveCoords.lat, liveCoords.lng] : [23.2332, 77.4344];
       const map = L.map(mapContainerRef.current).setView(initialCenter, 12);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

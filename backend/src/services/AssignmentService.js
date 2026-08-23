@@ -192,9 +192,9 @@ class AssignmentService {
       },
       notes: `Manually assigned to delivery agent ${agent.name} by Admin.`,
       location: {
-        lat: order.pickupAddress?.coordinates?.lat || 12.9716,
-        lng: order.pickupAddress?.coordinates?.lng || 77.5946,
-        description: `Pickup Hub: ${order.pickupAddress?.area || 'Bangalore'}`
+        lat: order.pickupAddress?.coordinates?.lat || 23.2332,
+        lng: order.pickupAddress?.coordinates?.lng || 77.4344,
+        description: `Pickup Hub: ${order.pickupAddress?.area || 'Bhopal'}`
       }
     });
 

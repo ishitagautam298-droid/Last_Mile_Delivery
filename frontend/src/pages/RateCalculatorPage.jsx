@@ -20,12 +20,12 @@ const RateCalculatorPage = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    pickupPincode: '560034',
-    pickupArea: 'Koramangala 4th Block',
-    pickupCity: 'Bangalore',
-    dropPincode: '560038',
-    dropArea: 'Indiranagar 100ft Road',
-    dropCity: 'Bangalore',
+    pickupPincode: '462016',
+    pickupArea: 'Arera Colony (E1-E7)',
+    pickupCity: 'Bhopal',
+    dropPincode: '462042',
+    dropArea: 'Kolar Road & Sarvdharm',
+    dropCity: 'Bhopal',
     lengthCm: '30',
     breadthCm: '20',
     heightCm: '15',

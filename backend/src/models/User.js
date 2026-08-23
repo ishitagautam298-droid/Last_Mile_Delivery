@@ -36,9 +36,9 @@ const userSchema = new mongoose.Schema({
       ref: 'Zone'
     },
     currentLocation: {
-      lat: { type: Number, default: 12.9716 },
-      lng: { type: Number, default: 77.5946 },
-      address: { type: String, default: 'Bangalore Central' },
+      lat: { type: Number, default: 23.2332 },
+      lng: { type: Number, default: 77.4344 },
+      address: { type: String, default: 'Bhopal Central Hub' },
       updatedAt: { type: Date, default: Date.now }
     },
     status: {
