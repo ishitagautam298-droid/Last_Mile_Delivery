@@ -233,24 +233,32 @@ Tests:       4 passed, 4 total
 
 ---
 
+## 🌐 Hosted Live Application
+
+- **Live Frontend (Vercel)**: [https://last-mile-delivery-kco7s7tp4-ishitagautam298-droids-projects.vercel.app](https://last-mile-delivery-kco7s7tp4-ishitagautam298-droids-projects.vercel.app)
+- **Live Backend API (Render)**: [https://lastmile-delivery-api.onrender.com/api/health](https://lastmile-delivery-api.onrender.com/api/health)
+- **GitHub Repository**: [https://github.com/ishitagautam298-droid/Last_Mile_Delivery](https://github.com/ishitagautam298-droid/Last_Mile_Delivery)
+
+---
+
 ## 🚀 Deployment Guide
 
-### Deploying to Render / Railway / Vercel:
+### Cloud Deployment Specifications:
 
 1. **Frontend (Vercel)**:
    - Root Directory: `frontend`
    - Build Command: `npm run build`
    - Output Directory: `dist`
-   - Set environment variable: `VITE_API_URL=https://your-backend.onrender.com`
+   - Environment Variable: `VITE_API_URL=https://lastmile-delivery-api.onrender.com`
 
-2. **Backend (Render / Railway)**:
+2. **Backend (Render)**:
    - Root Directory: `backend`
    - Build Command: `npm install`
    - Start Command: `npm start`
    - Environment Variables:
-     - `MONGODB_URI`: MongoDB Atlas connection string
-     - `JWT_SECRET`: Random 32-character secret key
-     - `CLIENT_URL`: Your Vercel frontend URL
+     - `MONGODB_URI`: MongoDB Atlas Cloud Cluster Connection String
+     - `JWT_SECRET`: 32-character secret key
+     - `CLIENT_URL`: `https://last-mile-delivery-kco7s7tp4-ishitagautam298-droids-projects.vercel.app`
      - `NODE_ENV`: `production`
 
 ---
