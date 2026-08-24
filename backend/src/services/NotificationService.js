@@ -324,8 +324,63 @@ class NotificationService {
       });
     }
 
-    // 2. Send / Log SMS
+    // 2. Send / Log SMS (Real SMS gateway or Mock)
     try {
+      let smsDeliveredStatus = 'delivered';
+
+      // A. Real Indian SMS via Fast2SMS (if FAST2SMS_API_KEY is provided)
+      if (process.env.FAST2SMS_API_KEY && customerPhone) {
+        const rawNumber = customerPhone.replace(/[^0-9]/g, '').slice(-10);
+        if (rawNumber.length === 10) {
+          try {
+            await fetch('https://www.fast2sms.com/dev/bulkV2', {
+              method: 'POST',
+              headers: {
+                'authorization': process.env.FAST2SMS_API_KEY,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                route: 'q',
+                message: smsMessage,
+                language: 'english',
+                flash: 0,
+                numbers: rawNumber
+              })
+            });
+            console.log(`📱 Real SMS dispatched to +91 ${rawNumber} via Fast2SMS`);
+          } catch (fErr) {
+            console.warn('Fast2SMS gateway error:', fErr.message);
+            smsDeliveredStatus = 'gateway_queued';
+          }
+        }
+      }
+
+      // B. Real SMS via Twilio (if TWILIO credentials provided)
+      if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_PHONE_NUMBER && customerPhone) {
+        try {
+          const auth = Buffer.from(`${process.env.TWILIO_ACCOUNT_SID}:${process.env.TWILIO_AUTH_TOKEN}`).toString('base64');
+          const twilioNumber = customerPhone.startsWith('+') ? customerPhone : `+91${customerPhone.replace(/[^0-9]/g, '').slice(-10)}`;
+          const body = new URLSearchParams({
+            To: twilioNumber,
+            From: process.env.TWILIO_PHONE_NUMBER,
+            Body: smsMessage
+          });
+
+          await fetch(`https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_ACCOUNT_SID}/Messages.json`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${auth}`,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: body.toString()
+          });
+          console.log(`📱 Real SMS dispatched to ${twilioNumber} via Twilio`);
+        } catch (tErr) {
+          console.warn('Twilio SMS gateway error:', tErr.message);
+          smsDeliveredStatus = 'gateway_queued';
+        }
+      }
+
       await NotificationLog.create({
         order: order._id,
         trackingNumber,
@@ -333,10 +388,10 @@ class NotificationService {
         channel: 'sms',
         type: `STATUS_${newStatus.toUpperCase().replace(/\s+/g, '_')}`,
         message: smsMessage,
-        status: 'delivered'
+        status: smsDeliveredStatus
       });
     } catch (smsErr) {
-      console.error('SMS log error:', smsErr.message);
+      console.error('SMS dispatch/log error:', smsErr.message);
     }
 
     // 3. Emit live WebSocket notification
