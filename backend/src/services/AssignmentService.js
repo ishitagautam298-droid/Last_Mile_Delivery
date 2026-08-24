@@ -130,8 +130,9 @@ class AssignmentService {
       }
     });
 
-    // Send notifications
-    await NotificationService.notifyAssignment(order, selectedAgent);
+    NotificationService.notifyAssignment(order, selectedAgent).catch(err => {
+      console.warn('⚠️ Auto assignment notification error:', err.message);
+    });
 
     return {
       success: true,
@@ -198,7 +199,9 @@ class AssignmentService {
       }
     });
 
-    await NotificationService.notifyAssignment(order, agent);
+    NotificationService.notifyAssignment(order, agent).catch(err => {
+      console.warn('⚠️ Manual assignment notification error:', err.message);
+    });
 
     return {
       success: true,

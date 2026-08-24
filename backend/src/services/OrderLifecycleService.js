@@ -119,8 +119,10 @@ class OrderLifecycleService {
       }
     });
 
-    // 4. Send Order Created Notification
-    await NotificationService.notifyStatusChange(order, null, 'Created');
+    // 4. Send Order Created Notification (non-blocking)
+    NotificationService.notifyStatusChange(order, null, 'Created').catch(err => {
+      console.warn('⚠️ Order Created notification error:', err.message);
+    });
 
     // 5. Trigger Auto-assignment if requested
     let assignmentResult = null;
@@ -244,12 +246,14 @@ class OrderLifecycleService {
       }
     });
 
-    // Trigger customer notification
-    await NotificationService.notifyStatusChange(order, previousStatus, newStatus, {
+    // Trigger customer notification (non-blocking)
+    NotificationService.notifyStatusChange(order, previousStatus, newStatus, {
       reason,
       notes,
       rescheduledDate,
       rescheduledTimeSlot
+    }).catch(err => {
+      console.warn('⚠️ Status Change notification error:', err.message);
     });
 
     // If rescheduled, trigger auto-reassignment for the new attempt!

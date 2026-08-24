@@ -26,25 +26,40 @@ class NotificationService {
         });
         console.log('✅ SMTP Transporter initialized with custom credentials');
       } else {
-        // Create an Ethereal test account for automated testing / demo preview URLs
-        this.etherealAccount = await nodemailer.createTestAccount();
-        this.transporter = nodemailer.createTransport({
-          host: 'smtp.ethereal.email',
-          port: 587,
-          secure: false,
-          auth: {
-            user: this.etherealAccount.user,
-            pass: this.etherealAccount.pass
-          }
+        // Create fallback transporter first
+        this.transporter = {
+          sendMail: async (options) => ({
+            messageId: 'mock-' + Date.now(),
+            preview: 'https://ethereal.email'
+          })
+        };
+
+        // Try Ethereal in background with 2.5s timeout
+        const testAccountPromise = nodemailer.createTestAccount().then(account => {
+          this.etherealAccount = account;
+          this.transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.email',
+            port: 587,
+            secure: false,
+            auth: {
+              user: account.user,
+              pass: account.pass
+            }
+          });
+          console.log(`📧 Ethereal Test Email Account created: ${account.user}`);
+        }).catch(err => {
+          console.warn('⚠️ Ethereal account creation warning:', err.message);
         });
-        console.log(`📧 Ethereal Test Email Account created: ${this.etherealAccount.user}`);
+
+        const timeoutPromise = new Promise(resolve => setTimeout(resolve, 2500));
+        await Promise.race([testAccountPromise, timeoutPromise]);
       }
     } catch (err) {
-      console.warn('⚠️ Email transporter initialization fallback to console mock:', err.message);
+      console.warn('⚠️ Email transporter initialization fallback:', err.message);
       this.transporter = {
         sendMail: async (options) => ({
           messageId: 'mock-' + Date.now(),
-          preview: 'https://ethereal.email/message/mock'
+          preview: 'https://ethereal.email'
         })
       };
     }

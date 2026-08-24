@@ -54,7 +54,9 @@ const AdminDashboardPage = () => {
 
   // Modal States
   const [manualAssignModal, setManualAssignModal] = useState({ open: false, order: null, selectedAgentId: '' });
+  const [assignSubmitting, setAssignSubmitting] = useState(false);
   const [statusOverrideModal, setStatusOverrideModal] = useState({ open: false, order: null, newStatus: '', reason: '', notes: '' });
+  const [overrideSubmitting, setOverrideSubmitting] = useState(false);
   const [zoneModal, setZoneModal] = useState({ open: false, mode: 'create', data: { name: '', code: '', city: 'Bhopal', description: '', lat: 23.2332, lng: 77.4344 } });
   const [areaModal, setAreaModal] = useState({ open: false, data: { pincode: '', areaName: '', city: 'Bhopal', state: 'Madhya Pradesh', zoneId: '' } });
   const [rateCardModal, setRateCardModal] = useState({ open: false, mode: 'create', data: { name: '', orderType: 'B2C', scope: 'intra_zone', baseWeightLimitKg: 0.5, basePrice: 45, incrementalPricePerKg: 20, codSurchargeType: 'fixed', codSurchargeValue: 25, minCodFee: 20, taxPercentage: 18 } });
@@ -93,7 +95,7 @@ const AdminDashboardPage = () => {
     try {
       const res = await orderAPI.autoAssign(orderId);
       if (res.data.success) {
-        alert(`Order successfully auto-assigned to ${res.data.result.assignedAgent.name} (Distance: ${res.data.result.assignmentMetrics.distanceKm} km)!`);
+        alert('Auto-assignment executed successfully!');
         fetchDashboardData();
       }
     } catch (err) {
@@ -103,9 +105,14 @@ const AdminDashboardPage = () => {
 
   const handleManualAssignSubmit = async (e) => {
     e.preventDefault();
-    if (!manualAssignModal.order || !manualAssignModal.selectedAgentId) return;
+    const targetAgentId = manualAssignModal.selectedAgentId || agents[0]?._id;
+    if (!manualAssignModal.order || !targetAgentId) {
+      alert('Please select a valid delivery agent.');
+      return;
+    }
+    setAssignSubmitting(true);
     try {
-      const res = await orderAPI.manualAssign(manualAssignModal.order._id, manualAssignModal.selectedAgentId);
+      const res = await orderAPI.manualAssign(manualAssignModal.order._id, targetAgentId);
       if (res.data.success) {
         alert('Agent assigned successfully!');
         setManualAssignModal({ open: false, order: null, selectedAgentId: '' });
@@ -113,12 +120,15 @@ const AdminDashboardPage = () => {
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Manual assignment failed');
+    } finally {
+      setAssignSubmitting(false);
     }
   };
 
   const handleStatusOverrideSubmit = async (e) => {
     e.preventDefault();
     if (!statusOverrideModal.order || !statusOverrideModal.newStatus) return;
+    setOverrideSubmitting(true);
     try {
       const res = await orderAPI.overrideStatus(statusOverrideModal.order._id, {
         status: statusOverrideModal.newStatus,
@@ -132,6 +142,8 @@ const AdminDashboardPage = () => {
       }
     } catch (err) {
       alert(err.response?.data?.message || 'Status override failed');
+    } finally {
+      setOverrideSubmitting(false);
     }
   };
 
@@ -751,21 +763,23 @@ const AdminDashboardPage = () => {
       {/* MANUAL ASSIGN MODAL */}
       {manualAssignModal.open && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-base font-bold text-slate-900 mb-2">Manually Assign Delivery Agent</h3>
-            <p className="text-xs text-slate-500 mb-4">Order #{manualAssignModal.order?.trackingNumber}</p>
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            <h3 className="text-base font-bold text-slate-900 mb-1">Manually Assign Delivery Agent</h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Order <span className="font-mono font-bold text-purple-700">#{manualAssignModal.order?.trackingNumber}</span> • {manualAssignModal.order?.customerName}
+            </p>
             
             <form onSubmit={handleManualAssignSubmit} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Select Delivery Agent</label>
+                <label className="block font-bold text-slate-700 mb-1.5">Select Delivery Agent</label>
                 <select
-                  value={manualAssignModal.selectedAgentId}
+                  value={manualAssignModal.selectedAgentId || agents[0]?._id || ''}
                   onChange={(e) => setManualAssignModal(prev => ({ ...prev, selectedAgentId: e.target.value }))}
-                  className="w-full p-3 rounded-xl border border-slate-200 text-sm font-semibold"
+                  className="w-full p-3 rounded-xl border border-slate-200 text-sm font-semibold focus:ring-2 focus:ring-purple-500 outline-none"
                 >
                   {agents.map(ag => (
                     <option key={ag._id} value={ag._id}>
-                      {ag.name} ({ag.agentDetails?.vehicleType}) • Active: {ag.agentDetails?.activeDeliveriesCount || 0} orders
+                      {ag.name} ({ag.agentDetails?.vehicleType || 'Courier'}) • Active: {ag.agentDetails?.activeDeliveriesCount || 0} orders
                     </option>
                   ))}
                 </select>
@@ -774,16 +788,25 @@ const AdminDashboardPage = () => {
               <div className="flex justify-end gap-2 pt-3">
                 <button
                   type="button"
+                  disabled={assignSubmitting}
                   onClick={() => setManualAssignModal({ open: false, order: null, selectedAgentId: '' })}
-                  className="px-4 py-2 border rounded-xl"
+                  className="px-4 py-2.5 border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl"
+                  disabled={assignSubmitting}
+                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md shadow-purple-500/25 flex items-center gap-2 disabled:opacity-50"
                 >
-                  Assign Agent
+                  {assignSubmitting ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Assigning Agent...</span>
+                    </>
+                  ) : (
+                    <span>Assign Agent</span>
+                  )}
                 </button>
               </div>
             </form>
@@ -844,16 +867,25 @@ const AdminDashboardPage = () => {
               <div className="flex justify-end gap-2 pt-3">
                 <button
                   type="button"
+                  disabled={overrideSubmitting}
                   onClick={() => setStatusOverrideModal({ open: false, order: null, newStatus: '', reason: '', notes: '' })}
-                  className="px-4 py-2 border rounded-xl"
+                  className="px-4 py-2.5 border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-slate-900 text-white font-bold rounded-xl"
+                  disabled={overrideSubmitting}
+                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md flex items-center gap-2 disabled:opacity-50"
                 >
-                  Apply Override
+                  {overrideSubmitting ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Applying Override...</span>
+                    </>
+                  ) : (
+                    <span>Apply Override</span>
+                  )}
                 </button>
               </div>
             </form>
