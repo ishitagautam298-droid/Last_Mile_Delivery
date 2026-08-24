@@ -13,9 +13,10 @@ import {
   CheckCircle2,
   Bell
 } from 'lucide-react';
-import { orderAPI } from '../services/api';
+import { orderAPI, trackingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import StatusBadge from '../components/StatusBadge';
+import NotificationDrawer from '../components/NotificationDrawer';
 
 const CustomerDashboardPage = () => {
   const { user } = useAuth();
@@ -26,12 +27,28 @@ const CustomerDashboardPage = () => {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
 
+  // Notifications Drawer
+  const [activeNotifs, setActiveNotifs] = useState({ open: false, list: [], loading: false, trackingNumber: '' });
+
   // Reschedule Modal
   const [selectedFailedOrder, setSelectedFailedOrder] = useState(null);
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [rescheduleTimeSlot, setRescheduleTimeSlot] = useState('10:00 AM - 01:00 PM');
   const [rescheduleNotes, setRescheduleNotes] = useState('');
   const [rescheduling, setRescheduling] = useState(false);
+
+  const handleOpenNotifications = async (trackingNumber) => {
+    setActiveNotifs({ open: true, list: [], loading: true, trackingNumber });
+    try {
+      const res = await trackingAPI.getNotifications(trackingNumber);
+      if (res.data.success) {
+        setActiveNotifs({ open: true, list: res.data.notifications, loading: false, trackingNumber });
+      }
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      setActiveNotifs(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -204,6 +221,15 @@ const CustomerDashboardPage = () => {
                     </span>
                   </div>
 
+                  <button
+                    onClick={() => handleOpenNotifications(o.trackingNumber)}
+                    className="px-3.5 py-2 bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+                    title="View SMS & Email Audit Logs"
+                  >
+                    <Bell className="w-3.5 h-3.5 text-purple-600" />
+                    <span>Messages & Emails</span>
+                  </button>
+
                   <Link
                     to={`/track/${o.trackingNumber}`}
                     className="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
@@ -329,6 +355,13 @@ const CustomerDashboardPage = () => {
           </div>
         </div>
       )}
+
+      {/* Dispatched Notifications Drawer */}
+      <NotificationDrawer
+        isOpen={activeNotifs.open}
+        notifications={activeNotifs.list}
+        onClose={() => setActiveNotifs({ open: false, list: [], loading: false, trackingNumber: '' })}
+      />
 
     </div>
   );

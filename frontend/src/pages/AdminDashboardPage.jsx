@@ -21,16 +21,19 @@ import {
   ArrowUpRight,
   ExternalLink,
   ChevronDown,
-  Layers
+  Layers,
+  Bell
 } from 'lucide-react';
 import { 
   analyticsAPI, 
   orderAPI, 
   zoneAPI, 
   rateCardAPI, 
-  authAPI 
+  authAPI,
+  trackingAPI 
 } from '../services/api';
 import StatusBadge from '../components/StatusBadge';
+import NotificationDrawer from '../components/NotificationDrawer';
 
 const AdminDashboardPage = () => {
   const [activeTab, setActiveTab] = useState('orders'); // 'metrics' | 'orders' | 'zones' | 'ratecards'
@@ -52,6 +55,9 @@ const AdminDashboardPage = () => {
     search: ''
   });
 
+  // Notifications Drawer
+  const [activeNotifs, setActiveNotifs] = useState({ open: false, list: [], loading: false, trackingNumber: '' });
+
   // Modal States
   const [manualAssignModal, setManualAssignModal] = useState({ open: false, order: null, selectedAgentId: '' });
   const [assignSubmitting, setAssignSubmitting] = useState(false);
@@ -60,6 +66,19 @@ const AdminDashboardPage = () => {
   const [zoneModal, setZoneModal] = useState({ open: false, mode: 'create', data: { name: '', code: '', city: 'Bhopal', description: '', lat: 23.2332, lng: 77.4344 } });
   const [areaModal, setAreaModal] = useState({ open: false, data: { pincode: '', areaName: '', city: 'Bhopal', state: 'Madhya Pradesh', zoneId: '' } });
   const [rateCardModal, setRateCardModal] = useState({ open: false, mode: 'create', data: { name: '', orderType: 'B2C', scope: 'intra_zone', baseWeightLimitKg: 0.5, basePrice: 45, incrementalPricePerKg: 20, codSurchargeType: 'fixed', codSurchargeValue: 25, minCodFee: 20, taxPercentage: 18 } });
+
+  const handleOpenNotifications = async (trackingNumber) => {
+    setActiveNotifs({ open: true, list: [], loading: true, trackingNumber });
+    try {
+      const res = await trackingAPI.getNotifications(trackingNumber);
+      if (res.data.success) {
+        setActiveNotifs({ open: true, list: res.data.notifications, loading: false, trackingNumber });
+      }
+    } catch (err) {
+      console.error('Error fetching notifications:', err);
+      setActiveNotifs(prev => ({ ...prev, loading: false }));
+    }
+  };
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -513,6 +532,15 @@ const AdminDashboardPage = () => {
                           className="p-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg font-bold"
                         >
                           <Sliders className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* View Messages & Email Button */}
+                        <button
+                          onClick={() => handleOpenNotifications(o.trackingNumber)}
+                          title="View Messages & Email Logs"
+                          className="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg font-bold"
+                        >
+                          <Bell className="w-3.5 h-3.5" />
                         </button>
 
                       </td>
@@ -1160,6 +1188,13 @@ const AdminDashboardPage = () => {
           </div>
         </div>
       )}
+
+      {/* Dispatched Notifications Drawer */}
+      <NotificationDrawer
+        isOpen={activeNotifs.open}
+        notifications={activeNotifs.list}
+        onClose={() => setActiveNotifs({ open: false, list: [], loading: false, trackingNumber: '' })}
+      />
 
     </div>
   );
