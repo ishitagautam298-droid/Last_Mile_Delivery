@@ -16,7 +16,8 @@ import {
   Layers,
   ArrowRight,
   ShieldAlert,
-  Info
+  Info,
+  ExternalLink
 } from 'lucide-react';
 import { trackingAPI, orderAPI } from '../services/api';
 import { getSocket, joinOrderRoom } from '../services/socket';
@@ -526,6 +527,70 @@ const PublicTrackerPage = () => {
                     <span className="text-emerald-600 font-semibold">{order.paymentType === 'Prepaid' ? 'PAID ONLINE' : 'CASH ON DELIVERY'}</span>
                   </div>
                 </div>
+              </div>
+
+              {/* SMS & Email Notifications Card */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-purple-100 text-purple-700 rounded-lg">
+                      <Bell className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-bold text-slate-900 text-sm">Dispatched Messages & Emails</h3>
+                  </div>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 font-mono">
+                    {notifications.length} Sent
+                  </span>
+                </div>
+
+                {notifications.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center">No notifications dispatched yet.</p>
+                ) : (
+                  <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                    {notifications.map((notif) => {
+                      const isEmail = notif.channel === 'email';
+                      return (
+                        <div key={notif._id} className="p-3 rounded-xl border border-slate-100 bg-slate-50 text-xs">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold ${
+                              isEmail ? 'bg-purple-100 text-purple-800' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
+                              {isEmail ? '✉️ EMAIL' : '💬 SMS'}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              {new Date(notif.sentAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+
+                          <p className="font-bold text-slate-800 text-[11px] mb-1">{notif.subject || notif.type}</p>
+
+                          {isEmail ? (
+                            <div className="mt-1">
+                              <p className="text-[11px] text-slate-500 mb-1.5">Recipient: <strong className="text-slate-700">{notif.recipient?.email}</strong></p>
+                              {notif.previewUrl ? (
+                                <a
+                                  href={notif.previewUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-[11px] text-blue-600 font-bold hover:underline bg-blue-50 px-2 py-1 rounded"
+                                >
+                                  <span>Open Live Email Preview</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              ) : (
+                                <span className="text-[11px] text-emerald-600 font-medium">✓ Delivered to Inbox</span>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="font-mono text-[11px] text-slate-700 bg-white p-2 rounded-lg border border-slate-200">
+                              {notif.message}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
             </div>
